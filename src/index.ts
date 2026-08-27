@@ -95,17 +95,50 @@ app.post("/api/v1/leads/query", async (req, res) => {
         Math.max(Number(req.query.limit) || 20, 1),
         100
     );
+const rawSortBy = req.query.sortBy;
+const rawSortDirection = req.query.sortDirection;
 
-    const sortBy = 
-        req.query.sortBy === "followUpDate"
+if (
+    rawSortBy !== undefined &&
+    rawSortBy !== "createdAt" &&
+    rawSortBy !== "followUpDate"
+) {
+    return res.status(400).json({
+        message: "Invalid request",
+        errors: [
+            {
+                field: "sortBy",
+                message: "Invalid sortBy. Expected createdAt or followUpDate."
+            }
+        ]
+    });
+}
+
+if (
+    rawSortDirection !== undefined &&
+    rawSortDirection !== "asc" &&
+    rawSortDirection !== "desc"
+) {
+    return res.status(400).json({
+        message: "Invalid request",
+        errors: [
+            {
+                field: "sortDirection",
+                message: "Invalid sortDirection. Expected asc or desc."
+            }
+        ]
+    });
+}
+
+const sortBy =
+    rawSortBy === "followUpDate"
         ? "followUpDate"
         : "createdAt";
 
-    const sortOrder = 
-        req.query.sortDirection === "asc"
-            ? "asc"
-            : "desc";
-
+const sortOrder =
+    rawSortDirection === "asc"
+        ? "asc"
+        : "desc";
     const pageSize = limit;
 
     let query = "";
@@ -611,6 +644,38 @@ app.post("/api/v1/leads/query", async (req, res) => {
             query += ` AND (${filterClauses.join(` ${logic} `)})`;
         }
     }
+
+    if (
+    sortBy !== undefined &&
+    sortBy !== "createdAt" &&
+    sortBy !== "followUpDate"
+) {
+    return res.status(400).json({
+        message: "Invalid request",
+        errors: [
+            {
+                field: "sortBy",
+                message: "Invalid sortBy. Expected createdAt or followUpDate."
+            }
+        ]
+    });
+}
+
+if (
+    sortOrder !== undefined &&
+    sortOrder !== "asc" &&
+    sortOrder !== "desc"
+) {
+    return res.status(400).json({
+        message: "Invalid request",
+        errors: [
+            {
+                field: "sortDirection",
+                message: "Invalid sortDirection. Expected asc or desc."
+            }
+        ]
+    });
+}
 
     const sortColumn =
         sortBy === "followUpDate"
