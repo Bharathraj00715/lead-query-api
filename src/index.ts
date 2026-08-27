@@ -186,6 +186,72 @@ const sortOrder =
             const { fieldId, fieldType, condition, value, inputType } = filter;
 
             if (
+                ![
+                "name",
+                "email",
+                "phone",
+                "company",
+                "status",
+                "assignedTo",
+                "followUpDate",
+                ].includes(fieldId) &&
+                !/^\d+$/.test(fieldId)
+            ) {
+                return res.status(400).json({
+                    message: "Invalid request",
+                    errors: [
+                        {
+                            field: "fieldId",
+                            message: "Invalid fieldId.",
+                        },
+                    ],
+                });
+            }
+
+            const allowedConditions: Record<string, string[]> = {
+  string: [
+    "contain",
+    "is",
+    "is not",
+    "does not contain",
+    "starts with",
+    "ends with",
+    "is empty",
+    "is not empty",
+  ],
+  date: [
+    "before",
+    "after",
+    "is",
+    "is not",
+    "is empty",
+    "is not empty",
+  ],
+  number: [
+    "is",
+    "greater than",
+    "less than",
+  ],
+  boolean: [
+    "is",
+  ],
+};
+
+if (
+  !allowedConditions[fieldType]?.includes(condition)
+) {
+  return res.status(400).json({
+    message: "Invalid request",
+    errors: [
+      {
+        field: "condition",
+        message: "Invalid condition.",
+      },
+    ],
+  });
+}
+
+            if (
                 fieldId === "followUpDate" &&
                 ["before", "after", "is", "is not"].includes(condition)
             ) {
@@ -413,8 +479,7 @@ const sortOrder =
                 const param = values.length + 1;
 
                 filterClauses.push(
-                    `follow_up_date >= $${param}::date
-                     AND follow_up_date <($${param}::date + INTERVAL '1 day')`
+                    `(follow_up_date AT TIME ZONE 'UTC')::date = $${param}::date`
                 );
 
                 values.push(value ?? "");
