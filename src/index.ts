@@ -183,7 +183,7 @@ const sortOrder =
 
         for (const filter of filters) {
 
-            const { fieldId, fieldType, condition, value } = filter;
+            const { fieldId, fieldType, condition, value, inputType } = filter;
 
             if (
                 fieldId === "followUpDate" &&
@@ -334,9 +334,16 @@ const sortOrder =
 
                 const param = values.length + 1;
 
-                filterClauses.push(
-                    `assigned_to = $${param}`
-                );
+                if (inputType === "multiselect") {
+                    filterClauses.push(
+                        `assigned_to = ANY(string_to_array($${param},','))`
+                    );
+                } else {
+                    filterClauses.push(
+                        `assigned_to = $${param}`
+                    );
+                }
+
 
                 values.push(value ?? "");
             }
