@@ -317,6 +317,57 @@ if (
                     values.push(`%${value ?? ""}`);
                 }
             }
+            if (fieldId === "status") {
+  if (condition === "contain") {
+    const param = values.length + 1;
+
+    filterClauses.push(`status ILIKE $${param}`);
+    values.push(`%${value ?? ""}%`);
+  }
+
+  if (condition === "is") {
+    const param = values.length + 1;
+
+    filterClauses.push(`LOWER(status) = LOWER($${param})`);
+    values.push(value ?? "");
+  }
+
+  if (condition === "is not") {
+    const param = values.length + 1;
+
+    filterClauses.push(`LOWER(status) <> LOWER($${param})`);
+    values.push(value ?? "");
+  }
+
+  if (condition === "does not contain") {
+    const param = values.length + 1;
+
+    filterClauses.push(`status NOT ILIKE $${param}`);
+    values.push(`%${value ?? ""}%`);
+  }
+
+  if (condition === "starts with") {
+    const param = values.length + 1;
+
+    filterClauses.push(`status ILIKE $${param}`);
+    values.push(`${value ?? ""}%`);
+  }
+
+  if (condition === "ends with") {
+    const param = values.length + 1;
+
+    filterClauses.push(`status ILIKE $${param}`);
+    values.push(`%${value ?? ""}`);
+  }
+
+  if (condition === "is empty") {
+    filterClauses.push(`status IS NULL OR status = ''`);
+  }
+
+  if (condition === "is not empty") {
+    filterClauses.push(`status IS NOT NULL AND status <> ''`);
+  }
+}
 
             if (
                 fieldId === "email" &&
@@ -520,10 +571,13 @@ if (
             }
 
             if (
-                fieldId !== "name" &&
-                fieldId !== "email" &&
-                fieldId !== "assignedTo" &&
-                fieldId !== "followUpDate"
+                 fieldId !== "name" &&
+    fieldId !== "email" &&
+    fieldId !== "phone" &&
+    fieldId !== "company" &&
+    fieldId !== "status" &&
+    fieldId !== "assignedTo" &&
+    fieldId !== "followUpDate"
             ) {
 
                 const param = values.length + 1;
