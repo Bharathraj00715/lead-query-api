@@ -184,6 +184,13 @@ const sortOrder =
         for (const filter of filters) {
 
             const { fieldId, fieldType, condition, value, inputType } = filter;
+            console.log("FILTER RECEIVED:", {
+    fieldId,
+    fieldType,
+    condition,
+    value,
+    inputType
+});
 
             if (
                 ![
